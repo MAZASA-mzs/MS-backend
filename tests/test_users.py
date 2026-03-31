@@ -6,7 +6,12 @@ from app.database import Base
 from app.main import app
 from fastapi.testclient import TestClient
 
-# Set test API key
+# Set test environment variables
+os.environ["POSTGRES_USER"] = "postgres"
+os.environ["POSTGRES_PASSWORD"] = "postgres"
+os.environ["POSTGRES_HOST"] = "localhost"
+os.environ["POSTGRES_PORT"] = "5432"
+os.environ["POSTGRES_DB"] = "test_observations"
 os.environ["API_KEY"] = "my_super_secret_api_key_for_bots"
 
 # Test database
@@ -108,3 +113,110 @@ def test_link_account(client, db, mock_redis):
     assert response.json()["message"] == "Account linked"
     mock_redis.get.assert_called_once_with("link_code:ABC123")
     mock_redis.delete.assert_called_once_with("link_code:ABC123")
+
+
+def test_update_contacts(client, db):
+    # First register
+    response = client.post(
+        "/api/users/register",
+        json={
+            "platform_name": "telegram",
+            "platform_user_id": "123",
+            "fio": "Test User",
+        },
+        headers={"X-Api-Key": "my_super_secret_api_key_for_bots"},
+    )
+    user_id = response.json()["user_id"]
+
+    response = client.patch(
+        f"/api/users/{user_id}/contacts",
+        json={"email": "new@example.com", "phone_number": "123456789"},
+        headers={"X-Api-Key": "my_super_secret_api_key_for_bots"},
+    )
+    assert response.status_code == 200
+    assert response.json()["email"] == "new@example.com"
+
+
+def test_set_consent(client, db):
+    # First register
+    response = client.post(
+        "/api/users/register",
+        json={
+            "platform_name": "telegram",
+            "platform_user_id": "123",
+            "fio": "Test User",
+        },
+        headers={"X-Api-Key": "my_super_secret_api_key_for_bots"},
+    )
+    user_id = response.json()["user_id"]
+
+    response = client.post(
+        f"/api/users/{user_id}/consent",
+        json=True,
+        headers={"X-Api-Key": "my_super_secret_api_key_for_bots"},
+    )
+    assert response.status_code == 200
+    assert response.json()["message"] == "Consent updated"
+
+
+def test_set_dobro_id(client, db):
+    # First register
+    response = client.post(
+        "/api/users/register",
+        json={
+            "platform_name": "telegram",
+            "platform_user_id": "123",
+            "fio": "Test User",
+        },
+        headers={"X-Api-Key": "my_super_secret_api_key_for_bots"},
+    )
+    user_id = response.json()["user_id"]
+
+    response = client.post(
+        f"/api/users/{user_id}/dobroid",
+        json="dobro123",
+        headers={"X-Api-Key": "my_super_secret_api_key_for_bots"},
+    )
+    assert response.status_code == 200
+    assert response.json()["message"] == "Dobro ID updated"
+
+
+def test_delete_dobro_id(client, db):
+    # First register
+    response = client.post(
+        "/api/users/register",
+        json={
+            "platform_name": "telegram",
+            "platform_user_id": "123",
+            "fio": "Test User",
+            "dobro_id": "dobro123",
+        },
+        headers={"X-Api-Key": "my_super_secret_api_key_for_bots"},
+    )
+    user_id = response.json()["user_id"]
+
+    response = client.delete(
+        f"/api/users/{user_id}/dobroid",
+        headers={"X-Api-Key": "my_super_secret_api_key_for_bots"},
+    )
+    assert response.status_code == 200
+    assert response.json()["message"] == "Dobro ID removed"
+
+
+def test_get_user_not_found(client, db):
+    response = client.get(
+        "/api/users/by-platform/telegram/999",
+        headers={"X-Api-Key": "my_super_secret_api_key_for_bots"},
+    )
+    assert response.status_code == 404
+    assert response.json()["detail"] == "User not found"
+
+
+def test_update_contacts_not_found(client, db):
+    response = client.patch(
+        "/api/users/00000000-0000-0000-0000-000000000000/contacts",
+        json={"email": "test@example.com"},
+        headers={"X-Api-Key": "my_super_secret_api_key_for_bots"},
+    )
+    assert response.status_code == 404
+    assert response.json()["detail"] == "User not found"

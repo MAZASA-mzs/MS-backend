@@ -17,28 +17,5 @@ services:
     ports:
       - "6379:6379"
 
-  backend:
-    build: .
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_HOST: db
-      POSTGRES_PORT: 5432
-      POSTGRES_DB: observations
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      REDIS_DB: 0
-      API_KEY: app_secret_key
-      YANDEX_DISK_TOKEN: yandex_token
-    ports:
-      - "8080:8080"
-    depends_on:
-      - db
-      - redis
-    volumes:
-      - ./app:/app/app
-      - ./alembic:/app/alembic
-      - ./alembic.ini:/app/alembic.ini
-
 volumes:
   postgres_data:
