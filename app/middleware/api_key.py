@@ -1,14 +1,27 @@
-from fastapi import Request, HTTPException
-from starlette.middleware.base import BaseHTTPMiddleware
+import os
+from fastapi import HTTPException, Security, status
+from fastapi.security.api_key import APIKeyHeader
+
+API_KEY_NAME = "X-Api-Key"
+api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 
 
-class APIKeyMiddleware(BaseHTTPMiddleware):
-    def __init__(self, app, api_key: str):
-        super().__init__(app)
-        self.api_key = api_key
+def verify_api_key(api_key: str = Security(api_key_header)) -> str:
+    """
+    Validates the X-Api-Key header against the environment variable.
+    """
+    expected_key = os.getenv("API_KEY")
 
-    async def dispatch(self, request: Request, call_next):
-        if request.headers.get("X-Api-Key") != self.api_key:
-            raise HTTPException(status_code=403, detail="Invalid API Key")
-        response = await call_next(request)
-        return response
+    if not expected_key:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="API_KEY is not configured on the server."
+        )
+
+    if api_key != expected_key:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid or missing API Key"
+        )
+
+    return api_key
