@@ -17,4 +17,10 @@ def read_faqs(db: Session = Depends(get_db)):
 
 @router.get("/privacy-policy")
 def read_privacy_policy():
-    return {"text": "Официальный текст Политики Конфиденциальности и обработки ПД."}
+    """
+    Возвращает текст политики и ссылку на скачивание PDF.
+    """
+    return {
+        "text": "Официальный текст Политики Конфиденциальности и обработки ПД. Настоящим документом устанавливается...",
+        "pdf_link": "https://example.com/documents/privacy_policy.pdf"
+    }

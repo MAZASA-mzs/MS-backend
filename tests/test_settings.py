@@ -201,5 +201,10 @@ def test_privacy_policy(client, db):
     # Тестируем публичный эндпоинт, который не ходит в БД
     response = client.get("/api/privacy-policy", headers=HEADERS)
     assert response.status_code == 200
-    assert "text" in response.json()
-    assert len(response.json()["text"]) > 0
+
+    data = response.json()
+    assert "text" in data
+    assert len(data["text"]) > 0
+
+    assert "pdf_link" in data
+    assert str(data["pdf_link"]).endswith(".pdf")
