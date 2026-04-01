@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
@@ -25,37 +27,36 @@ def get_user(platform: str, platform_user_id: str, db: Session = Depends(get_db)
     return user
 
 @router.patch("/{user_id}/contacts", response_model=User)
-def update_contacts(user_id: str, user_update: UserUpdate, db: Session = Depends(get_db)):
-    user = update_user(db, user_id, user_update)
+def update_contacts(user_id: uuid.UUID, user_update: UserUpdate, db: Session = Depends(get_db)):
+    user = update_user(db, str(user_id), user_update)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
 @router.post("/{user_id}/consent")
-def set_consent(user_id: str, consent: bool, db: Session = Depends(get_db)):
-    user = update_user(db, user_id, UserUpdate(consent=consent))
+def set_consent(user_id: uuid.UUID, consent: bool, db: Session = Depends(get_db)):
+    user = update_user(db, str(user_id), UserUpdate(consent=consent))
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return {"message": "Consent updated"}
 
 @router.post("/{user_id}/dobroid")
-def set_dobro_id(user_id: str, dobro_id: str, db: Session = Depends(get_db)):
-    user = update_user(db, user_id, UserUpdate(dobro_id=dobro_id))
+def set_dobro_id(user_id: uuid.UUID, dobro_id: str, db: Session = Depends(get_db)):
+    user = update_user(db, str(user_id), UserUpdate(dobro_id=dobro_id))
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return {"message": "Dobro ID updated"}
 
 @router.delete("/{user_id}/dobroid")
-def delete_dobro_id(user_id: str, db: Session = Depends(get_db)):
-    user = update_user(db, user_id, UserUpdate(dobro_id=None))
+def delete_dobro_id(user_id: uuid.UUID, db: Session = Depends(get_db)):
+    user = update_user(db, str(user_id), UserUpdate(dobro_id=None))
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return {"message": "Dobro ID removed"}
 
 @router.post("/me/generate-link-code")
-def generate_code(user_id: str):
-    # In real app, consider getting user_id from a JWT or session
-    code = generate_link_code(user_id)
+def generate_code(user_id: uuid.UUID):
+    code = generate_link_code(str(user_id))
     return {"code": code}
 
 @router.post("/link-account")

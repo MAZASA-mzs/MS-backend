@@ -39,8 +39,10 @@ def test_generate_link_code(client, db, mock_redis):
     # Mock redis setex
     mock_redis.setex.return_value = None
 
+    test_uuid = "00000000-0000-0000-0000-000000000000"
+
     response = client.post(
-        "/api/users/me/generate-link-code?user_id=test-user-id",
+        f"/api/users/me/generate-link-code?user_id={test_uuid}",
         headers={"X-Api-Key": "my_super_secret_api_key_for_bots"},
     )
     assert response.status_code == 200

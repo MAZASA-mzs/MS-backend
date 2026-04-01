@@ -11,7 +11,7 @@ router = APIRouter()
 
 @router.post("/posts", response_model=PostCreateResponse)
 def upload_post(
-        user_id: str = Form(...),
+        user_id: uuid.UUID = Form(...),
         description: str = Form(""),
         file: UploadFile = File(...),
         db: Session = Depends(get_db)
@@ -22,7 +22,7 @@ def upload_post(
 
     # Save to DB
     try:
-        post = create_post(db, user_id, link, description)
+        post = create_post(db, str(user_id), link, description)
         return {"post_id": post.post_id, "link": post.link}
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
