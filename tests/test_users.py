@@ -40,7 +40,7 @@ def client():
 
 @pytest.fixture(scope="function")
 def mock_redis(mocker):
-    mock_redis = mocker.patch("app.redis_client.redis_client")
+    mock_redis = mocker.patch("app.services.user_service.redis_client")
     return mock_redis
 
 
@@ -96,13 +96,25 @@ def test_generate_link_code(client, db, mock_redis):
 
 
 def test_link_account(client, db, mock_redis):
+    # First register a user
+    response = client.post(
+        "/api/users/register",
+        json={
+            "platform_name": "telegram",
+            "platform_user_id": "123",
+            "fio": "Test User",
+        },
+        headers={"X-Api-Key": "my_super_secret_api_key_for_bots"},
+    )
+    user_id = response.json()["user_id"]
+
     # Mock redis get
-    mock_redis.get.return_value = "test-user-id"
+    mock_redis.get.return_value = user_id
     mock_redis.delete.return_value = None
 
     response = client.post(
         "/api/users/link-account",
-        json={
+        params={
             "platform_name": "maks",
             "platform_user_id": "456",
             "code": "ABC123",
@@ -152,7 +164,7 @@ def test_set_consent(client, db):
 
     response = client.post(
         f"/api/users/{user_id}/consent",
-        json=True,
+        params={"consent": True},
         headers={"X-Api-Key": "my_super_secret_api_key_for_bots"},
     )
     assert response.status_code == 200
@@ -174,7 +186,7 @@ def test_set_dobro_id(client, db):
 
     response = client.post(
         f"/api/users/{user_id}/dobroid",
-        json="dobro123",
+        params={"dobro_id": "dobro123"},
         headers={"X-Api-Key": "my_super_secret_api_key_for_bots"},
     )
     assert response.status_code == 200

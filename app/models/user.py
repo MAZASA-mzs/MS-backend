@@ -11,7 +11,7 @@ class User(Base):
     fio = Column(String, nullable=True)
     email = Column(String, nullable=True)
     phone_number = Column(String, nullable=True)
-    sex = Column(Boolean, nullable=True)  # True for male, False for female?
+    sex = Column(Boolean, nullable=True)  # True for male, False for female
     role = Column(String, default="user")  # admin or user
     dobro_id = Column(String, nullable=True)
     consent = Column(Boolean, default=False)

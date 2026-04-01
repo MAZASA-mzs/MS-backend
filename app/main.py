@@ -2,6 +2,9 @@ from fastapi import FastAPI
 from app.routers.users import router as users_router
 from app.middleware.api_key import APIKeyMiddleware
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI(title="Main Backend API", version="1.0.0")
 

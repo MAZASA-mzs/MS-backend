@@ -20,6 +20,8 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Upgrade schema."""
+    # Enable pgcrypto extension for gen_random_uuid()
+    op.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto;")
     # Create users table
     op.create_table(
         "users",
