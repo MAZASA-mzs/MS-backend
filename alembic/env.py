@@ -1,3 +1,6 @@
+import os
+from dotenv import load_dotenv
+
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
@@ -6,6 +9,7 @@ from sqlalchemy import pool
 from alembic import context
 
 from app.database import Base
+import app.models
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -51,14 +55,23 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode.
+    load_dotenv()
 
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
+    # The generated URL from the environment in the .env file
+    db_url = (
+        f"postgresql://{os.getenv('POSTGRES_USER', 'postgres')}:"
+        f"{os.getenv('POSTGRES_PASSWORD', 'postgres')}@"
+        f"{os.getenv('POSTGRES_HOST', 'localhost')}:"
+        f"{os.getenv('POSTGRES_PORT', '5432')}/"
+        f"{os.getenv('POSTGRES_DB', 'observations')}"
+    )
 
-    """
+
+    configuration = config.get_section(config.config_ini_section)
+    configuration["sqlalchemy.url"] = db_url
+
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        configuration,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
