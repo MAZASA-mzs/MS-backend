@@ -6,3 +6,5 @@ alembic
 redis
 pydantic[email]
 python-dotenv
+python-multipart
+requests
