@@ -4,8 +4,8 @@ from typing import List
 from app.database import get_db
 from app.schemas.settings import BotCommandResponse, FaqSectionResponse
 from app.services.settings_service import get_commands, get_faqs
-
 router = APIRouter()
+
 
 @router.get("/settings/commands", response_model=List[BotCommandResponse])
 def read_commands(platform: str = Query(None, description="Фильтр платформы: TG или MAX"), db: Session = Depends(get_db)):
@@ -24,3 +24,10 @@ def read_privacy_policy():
         "text": "Официальный текст Политики Конфиденциальности и обработки ПД. Настоящим документом устанавливается...",
         "pdf_link": "https://example.com/documents/privacy_policy.pdf"
     }
+
+@router.get("/max-bot-link")
+def read_max_bot_link():
+    """
+    Возвращает ссылку на MAX бота.
+    """
+    return {"link": "max.me/@max-bot"}
