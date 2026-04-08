@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas.user import UserCreate, UserUpdate, User
@@ -21,37 +21,25 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
 
 @router.get("/by-platform/{platform}/{platform_user_id}", response_model=User)
 def get_user(platform: str, platform_user_id: str, db: Session = Depends(get_db)):
-    user = get_user_by_platform(db, platform, platform_user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
+    return get_user_by_platform(db, platform, platform_user_id)
 
 @router.patch("/{user_id}/contacts", response_model=User)
 def update_contacts(user_id: uuid.UUID, user_update: UserUpdate, db: Session = Depends(get_db)):
-    user = update_user(db, str(user_id), user_update)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
+    return update_user(db, str(user_id), user_update)
 
 @router.post("/{user_id}/consent")
 def set_consent(user_id: uuid.UUID, consent: bool, db: Session = Depends(get_db)):
-    user = update_user(db, str(user_id), UserUpdate(consent=consent))
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+    update_user(db, str(user_id), UserUpdate(consent=consent))
     return {"message": "Consent updated"}
 
 @router.post("/{user_id}/dobroid")
 def set_dobro_id(user_id: uuid.UUID, dobro_id: str, db: Session = Depends(get_db)):
-    user = update_user(db, str(user_id), UserUpdate(dobro_id=dobro_id))
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+    update_user(db, str(user_id), UserUpdate(dobro_id=dobro_id))
     return {"message": "Dobro ID updated"}
 
 @router.delete("/{user_id}/dobroid")
 def delete_dobro_id(user_id: uuid.UUID, db: Session = Depends(get_db)):
-    user = update_user(db, str(user_id), UserUpdate(dobro_id=None))
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+    update_user(db, str(user_id), UserUpdate(dobro_id=None))
     return {"message": "Dobro ID removed"}
 
 @router.post("/me/generate-link-code")
@@ -61,8 +49,5 @@ def generate_code(user_id: uuid.UUID):
 
 @router.post("/link-account")
 def link_acc(platform_name: str, platform_user_id: str, code: str, db: Session = Depends(get_db)):
-    try:
-        link_account(db, platform_name, platform_user_id, code)
-        return {"message": "Account linked"}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    link_account(db, platform_name, platform_user_id, code)
+    return {"message": "Account linked"}

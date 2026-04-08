@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 import uuid
 from app.database import get_db
@@ -21,15 +21,11 @@ def add_command(command: BotCommandCreate, db: Session = Depends(get_db)):
 
 @router.patch("/commands/{command_id}", response_model=BotCommandResponse)
 def edit_command(command_id: uuid.UUID, command_update: BotCommandUpdate, db: Session = Depends(get_db)):
-    updated = update_command(db, str(command_id), command_update)
-    if not updated:
-        raise HTTPException(status_code=404, detail="Command not found")
-    return updated
+    return update_command(db, str(command_id), command_update)
 
 @router.delete("/commands/{command_id}")
 def remove_command(command_id: uuid.UUID, db: Session = Depends(get_db)):
-    if not delete_command(db, str(command_id)):
-        raise HTTPException(status_code=404, detail="Command not found")
+    delete_command(db, str(command_id))
     return {"message": "Command deleted successfully"}
 
 
@@ -45,13 +41,10 @@ def add_faq(faq: FaqSectionCreate, db: Session = Depends(get_db)):
 
 @router.patch("/faq/sections/{section_id}", response_model=FaqSectionResponse)
 def edit_faq(section_id: uuid.UUID, faq_update: FaqSectionUpdate, db: Session = Depends(get_db)):
-    updated = update_faq(db, str(section_id), faq_update)
-    if not updated:
-        raise HTTPException(status_code=404, detail="FAQ section not found")
-    return updated
+    return update_faq(db, str(section_id), faq_update)
+
 
 @router.delete("/faq/sections/{section_id}")
 def remove_faq(section_id: uuid.UUID, db: Session = Depends(get_db)):
-    if not delete_faq(db, str(section_id)):
-        raise HTTPException(status_code=404, detail="FAQ section not found")
+    delete_faq(db, str(section_id))
     return {"message": "FAQ section deleted successfully"}
