@@ -73,10 +73,7 @@ def link_account(db: Session, platform_name: str, platform_user_id: str, code: s
     if not user_id:
         raise BusinessLogicError("Invalid or expired code")
 
-    try:
-        user_id = user_id.decode()
-    except AttributeError:
-        raise BusinessLogicError("Invalid or expired code")
+    user_id = str(user_id)
 
     # Check if account already exists
     existing = (
