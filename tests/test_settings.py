@@ -30,7 +30,7 @@ def test_get_commands_platform_filtering(client, db):
         json={"command_name": "/tg_only", "platform_enabled": "TG"},
         headers=HEADERS,
     )
-    # Создаем команду только для MAKS
+    # Создаем команду только для MAX
     client.post(
         "/api/admin/commands",
         json={"command_name": "/max_only", "platform_enabled": "MAX"},
@@ -51,7 +51,7 @@ def test_get_commands_platform_filtering(client, db):
     assert "/universal" in names_tg
     assert "/max_only" not in names_tg
 
-    # Проверяем выдачу для MAKS
+    # Проверяем выдачу для MAX
     resp_max = client.get("/api/settings/commands?platform=MAX", headers=HEADERS)
     assert resp_max.status_code == 200
     names_max = [cmd["command_name"] for cmd in resp_max.json()]

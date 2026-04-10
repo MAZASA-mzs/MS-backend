@@ -9,7 +9,7 @@ class UserAccount(Base):
 
     account_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.user_id"))
-    platform_name = Column(String)  # "telegram" or "maks"
+    platform_name = Column(String)  # "TG" or "MAX" (or any other new services)
     platform_user_id = Column(String)
     created_at = Column(
         TIMESTAMP(timezone=True), server_default=func.now()

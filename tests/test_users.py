@@ -71,7 +71,7 @@ def test_link_account(client, db, mock_redis):
     response = client.post(
         "/api/users/link-account",
         params={
-            "platform_name": "maks",
+            "platform_name": "max",
             "platform_user_id": "456",
             "code": "ABC123",
         },
