@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from sqlalchemy import Column, String, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
@@ -15,3 +16,8 @@ class User(Base):
     role = Column(String, default="user")  # admin or user
     dobro_id = Column(String, nullable=True)
     consent = Column(Boolean, default=False)
+
+@dataclass(frozen=True)
+class UserStats:
+    post_count: int
+    geo_count: int

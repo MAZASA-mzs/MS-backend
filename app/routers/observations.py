@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.services.yandex_disk import upload_file_to_yandex_disk
-from app.services.observation_service import create_post, create_geolocation, link_photo_geo
+from app.services.observation_service import create_post, create_geolocation, link_photo_geo, get_user_stats
 from app.schemas.observation import PostCreateResponse, GeolocationCreate, GeolocationResponse, LinkPhotoGeo
 
 router = APIRouter()
@@ -35,3 +35,8 @@ def save_geolocation(geo: GeolocationCreate, db: Session = Depends(get_db)):
 def link_photo_geo_endpoint(payload: LinkPhotoGeo, db: Session = Depends(get_db)):
     link_photo_geo(db, str(payload.user_id), str(payload.post_id), str(payload.geo_id))
     return {"message": "Linked successfully"}
+
+@router.get("/user_stats")
+def user_stats(user_id: uuid.UUID, db: Session = Depends(get_db)):
+    user_stats = get_user_stats(db, str(user_id))
+    return {"post_count": user_stats.post_count, "geo_count": user_stats.geo_count}

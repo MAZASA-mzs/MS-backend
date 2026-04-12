@@ -6,7 +6,7 @@ from app.exceptions import NotFoundError
 
 def get_commands(db: Session, platform: str = None):
     query = db.query(BotCommand)
-    if platform:
+    if platform and platform != "ALL":
         query = query.filter(BotCommand.platform_enabled.in_([platform.upper(), "ALL"]))
     return query.all()
 

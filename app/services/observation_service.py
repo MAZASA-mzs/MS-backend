@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from app.models.content import Post, Geolocation, post_users, user_geolocations, post_geolocations
-from app.models.user import User
+from app.models.user import User, UserStats
 
 from app.exceptions import NotFoundError, InvalidReferenceError
 
@@ -62,3 +62,26 @@ def link_photo_geo(db: Session, user_id: str, post_id: str, geo_id: str) -> bool
     except IntegrityError:
         db.rollback()
         raise InvalidReferenceError("Provided Post ID or Geolocation ID does not exist, or link already exists.")
+
+def get_user_stats(db: Session, user_id: str) -> UserStats:
+    user = db.query(User).filter(User.user_id == user_id).first()
+    if not user:
+        raise NotFoundError("User")
+    try:
+        post_count = (
+            db.query(Post)
+            .join(post_users, Post.post_id == post_users.c.post_id)
+            .filter(post_users.c.user_id == user_id)
+            .count()
+        )
+        geo_count = (
+            db.query(Geolocation)
+            .join(user_geolocations, Geolocation.geo_id == user_geolocations.c.geo_id)
+            .filter(user_geolocations.c.user_id == user_id)
+            .count()
+        )
+        return UserStats(post_count, geo_count)
+
+    except IntegrityError:
+        db.rollback()
+        raise InvalidReferenceError("Error while getting user stats.")
