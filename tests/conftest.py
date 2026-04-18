@@ -8,8 +8,8 @@ from fastapi.testclient import TestClient
 os.environ["POSTGRES_DB"] = "test_observations"
 os.environ["API_KEY"] = "my_super_secret_api_key_for_bots"
 
-from app.main import app
-from app.database import Base, get_db
+from app.main import app  # noqa: E402
+from app.database import Base, get_db  # noqa: E402
 
 # Test database configuration
 TEST_DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/test_observations"

@@ -3,6 +3,7 @@ import requests
 from fastapi import UploadFile
 from app.exceptions import BusinessLogicError
 
+
 def upload_file_to_yandex_disk(file: UploadFile, filename: str) -> str:
     token = os.getenv("YANDEX_DISK_TOKEN")
     if not token:
@@ -21,7 +22,9 @@ def upload_file_to_yandex_disk(file: UploadFile, filename: str) -> str:
     href = response.json().get("href")
 
     try:
-        upload_response = requests.put(href, files={"file": (filename, file.file, file.content_type)})
+        upload_response = requests.put(
+            href, files={"file": (filename, file.file, file.content_type)}
+        )
         upload_response.raise_for_status()
     except requests.exceptions.RequestException as e:
         raise BusinessLogicError(f"Failed to upload file to Yandex.Disk: {e}")

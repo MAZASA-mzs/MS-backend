@@ -1,6 +1,12 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from app.models.content import Post, Geolocation, post_users, user_geolocations, post_geolocations
+from app.models.content import (
+    Post,
+    Geolocation,
+    post_users,
+    user_geolocations,
+    post_geolocations,
+)
 from app.models.user import User, UserStats
 
 from app.exceptions import NotFoundError, InvalidReferenceError
@@ -25,7 +31,9 @@ def create_post(db: Session, user_id: str, link: str, description: str) -> Post:
         return post
     except IntegrityError:
         db.rollback()
-        raise InvalidReferenceError("Failed to link post. Integrity constraint violated.")
+        raise InvalidReferenceError(
+            "Failed to link post. Integrity constraint violated."
+        )
 
 
 def create_geolocation(db: Session, user_id: str, x: float, y: float) -> Geolocation:
@@ -40,14 +48,18 @@ def create_geolocation(db: Session, user_id: str, x: float, y: float) -> Geoloca
         db.flush()
 
         # Connect user with geo
-        db.execute(user_geolocations.insert().values(user_id=user_id, geo_id=geo.geo_id))
+        db.execute(
+            user_geolocations.insert().values(user_id=user_id, geo_id=geo.geo_id)
+        )
 
         db.commit()
         db.refresh(geo)
         return geo
     except IntegrityError:
         db.rollback()
-        raise InvalidReferenceError("Failed to link geolocation. Integrity constraint violated.")
+        raise InvalidReferenceError(
+            "Failed to link geolocation. Integrity constraint violated."
+        )
 
 
 def link_photo_geo(db: Session, user_id: str, post_id: str, geo_id: str) -> bool:
@@ -61,7 +73,10 @@ def link_photo_geo(db: Session, user_id: str, post_id: str, geo_id: str) -> bool
         return True
     except IntegrityError:
         db.rollback()
-        raise InvalidReferenceError("Provided Post ID or Geolocation ID does not exist, or link already exists.")
+        raise InvalidReferenceError(
+            "Provided Post ID or Geolocation ID does not exist, or link already exists."
+        )
+
 
 def get_user_stats(db: Session, user_id: str) -> UserStats:
     user = db.query(User).filter(User.user_id == user_id).first()

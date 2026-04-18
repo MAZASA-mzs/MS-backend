@@ -17,6 +17,7 @@ class User(Base):
     dobro_id = Column(String, nullable=True)
     consent = Column(Boolean, default=False)
 
+
 @dataclass(frozen=True)
 class UserStats:
     post_count: int

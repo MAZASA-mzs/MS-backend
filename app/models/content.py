@@ -24,6 +24,7 @@ user_geolocations = Table(
     Column("geo_id", UUID(as_uuid=True), ForeignKey("geolocations.geo_id")),
 )
 
+
 class Post(Base):
     __tablename__ = "posts"
 

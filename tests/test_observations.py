@@ -9,7 +9,11 @@ def create_test_user(client):
     """Helper function to create a user for observation tests."""
     response = client.post(
         "/api/users/register",
-        json={"platform_name": "telegram", "platform_user_id": "obs_user_1", "fio": "Obs User"},
+        json={
+            "platform_name": "telegram",
+            "platform_user_id": "obs_user_1",
+            "fio": "Obs User",
+        },
         headers=HEADERS,
     )
     return response.json()["user_id"]
@@ -18,6 +22,7 @@ def create_test_user(client):
 # ---------------------------------------------------------
 # 1. МОКИРОВАННЫЕ ТЕСТЫ (Всегда проходят, независимы от сети)
 # ---------------------------------------------------------
+
 
 @patch("app.services.yandex_disk.requests.get")
 @patch("app.services.yandex_disk.requests.put")
@@ -29,7 +34,9 @@ def test_upload_post_mocked(mock_put, mock_get, client, db, monkeypatch):
 
     # Настраиваем поведение моков requests
     mock_get.return_value.status_code = 200
-    mock_get.return_value.json.return_value = {"href": "https://mock-upload-url.yandex.net"}
+    mock_get.return_value.json.return_value = {
+        "href": "https://mock-upload-url.yandex.net"
+    }
     mock_put.return_value.status_code = 201
 
     files = {"file": ("test.jpg", b"fake_image_bytes", "image/jpeg")}
@@ -101,10 +108,11 @@ def test_link_photo_geo(mock_put, mock_get, client, db, monkeypatch):
 # 2. ИНТЕГРАЦИОННЫЕ ТЕСТЫ (Требуют реального токена)
 # ---------------------------------------------------------
 
+
 # Тест пропустится, если токена нет или стоит дефолтный из .env.example
 @pytest.mark.skipif(
     os.getenv("YANDEX_DISK_TOKEN") in [None, "", "yandex_token"],
-    reason="Valid YANDEX_DISK_TOKEN is required for real integration test"
+    reason="Valid YANDEX_DISK_TOKEN is required for real integration test",
 )
 def test_upload_post_real_yandex_disk(client, db):
     """

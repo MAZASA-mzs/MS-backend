@@ -1,5 +1,3 @@
-import pytest
-
 HEADERS = {"X-Api-Key": "my_super_secret_api_key_for_bots"}
 
 
@@ -7,13 +5,14 @@ HEADERS = {"X-Api-Key": "my_super_secret_api_key_for_bots"}
 # 1. ТЕСТЫ КОМАНД (ADMIN & PUBLIC API)
 # ---------------------------------------------------------
 
+
 def test_create_command(client, db):
     response = client.post(
         "/api/admin/commands",
         json={
             "command_name": "/start",
             "command_description": "Запустить бота",
-            "platform_enabled": "ALL"
+            "platform_enabled": "ALL",
         },
         headers=HEADERS,
     )
@@ -112,6 +111,7 @@ def test_command_not_found(client, db):
 # 2. ТЕСТЫ FAQ (ADMIN & PUBLIC API)
 # ---------------------------------------------------------
 
+
 def test_create_faq(client, db):
     response = client.post(
         "/api/admin/faq/sections",
@@ -119,7 +119,7 @@ def test_create_faq(client, db):
             "title": "Как отправить фото?",
             "description": "Нажмите скрепку",
             "sort_order": 1,
-            "is_enabled": True
+            "is_enabled": True,
         },
         headers=HEADERS,
     )
@@ -133,13 +133,21 @@ def test_faq_visibility_rules(client, db):
     # Создаем активный FAQ
     client.post(
         "/api/admin/faq/sections",
-        json={"title": "Активный раздел", "description": "Видно всем", "is_enabled": True},
+        json={
+            "title": "Активный раздел",
+            "description": "Видно всем",
+            "is_enabled": True,
+        },
         headers=HEADERS,
     )
     # Создаем скрытый FAQ
     client.post(
         "/api/admin/faq/sections",
-        json={"title": "Скрытый раздел", "description": "Черновик", "is_enabled": False},
+        json={
+            "title": "Скрытый раздел",
+            "description": "Черновик",
+            "is_enabled": False,
+        },
         headers=HEADERS,
     )
 
@@ -196,6 +204,7 @@ def test_delete_faq(client, db):
 # ---------------------------------------------------------
 # 3. ТЕСТ ПОЛИТИКИ КОНФИДЕНЦИАЛЬНОСТИ
 # ---------------------------------------------------------
+
 
 def test_privacy_policy(client, db):
     # Тестируем публичный эндпоинт, который не ходит в БД

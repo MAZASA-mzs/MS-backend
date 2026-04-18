@@ -9,7 +9,7 @@ from sqlalchemy import pool
 from alembic import context
 
 from app.database import Base
-import app.models
+import app.models  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -65,7 +65,6 @@ def run_migrations_online() -> None:
         f"{os.getenv('POSTGRES_PORT', '5432')}/"
         f"{os.getenv('POSTGRES_DB', 'observations')}"
     )
-
 
     configuration = config.get_section(config.config_ini_section)
     configuration["sqlalchemy.url"] = db_url

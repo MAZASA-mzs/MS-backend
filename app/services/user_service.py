@@ -9,9 +9,7 @@ from app.exceptions import NotFoundError, InvalidReferenceError, BusinessLogicEr
 
 
 def create_user(db: Session, user: UserCreate) -> User:
-    db_user = User(
-        **user.model_dump(exclude={"platform_name", "platform_user_id"})
-    )
+    db_user = User(**user.model_dump(exclude={"platform_name", "platform_user_id"}))
     db.add(db_user)
     try:
         db.commit()

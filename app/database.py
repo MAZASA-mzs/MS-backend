@@ -4,7 +4,6 @@ from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
 
-
 load_dotenv()
 
 DATABASE_URL = (

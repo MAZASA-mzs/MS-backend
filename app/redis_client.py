@@ -2,7 +2,6 @@ from dotenv import load_dotenv
 import redis
 import os
 
-
 load_dotenv()
 
 redis_client = redis.Redis(
