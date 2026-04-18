@@ -41,7 +41,7 @@ YANDEX_DISK_TOKEN=yandex_token
 
 ### Запуск
 
-1. Установите зависимости: `pip install -r requirements.txt`
+1. Установите зависимости: `pip install -r requirements.dev.txt`
 2. Примените миграции: `alembic upgrade head`
 3. Запустите необходимую инфраструктуру: `docker compose up redis postgres`
 4. Запустите сервер: `uvicorn app.main:app --host 0.0.0.0 --port 8089 --reload`
