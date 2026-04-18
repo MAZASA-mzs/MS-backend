@@ -12,7 +12,7 @@ from app.main import app  # noqa: E402
 from app.database import Base, get_db  # noqa: E402
 
 # Test database configuration
-TEST_DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/test_observations"
+TEST_DATABASE_URL = "postgresql://postgres:postgres@localhost:5433/test_observations"
 
 engine = create_engine(TEST_DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
