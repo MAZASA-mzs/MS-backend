@@ -1,3 +1,4 @@
+import uuid
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from app.models.content import (
@@ -8,16 +9,93 @@ from app.models.content import (
     post_geolocations,
 )
 from app.models.user import User, UserStats
+from app.services.ai_service import get_and_delete_stashed_image
+from app.services.yandex_disk import upload_file_to_yandex_disk
+from app.schemas.observation import PostCreate
 
-from app.exceptions import NotFoundError, InvalidReferenceError
+from app.exceptions import NotFoundError, InvalidReferenceError, BusinessLogicError
 
 
-def create_post(db: Session, user_id: str, link: str, description: str) -> Post:
+def process_and_create_post(db: Session, payload: PostCreate) -> Post:
+    # 1. Check if user exists
+    user = db.query(User).filter(User.user_id == str(payload.user_id)).first()
+    if not user:
+        raise NotFoundError("User")
+
+    # 2. Validate business logic: if AI failed, user must choose
+    if payload.ai_plant_id == -1 and payload.user_plant_id == -1:
+        raise BusinessLogicError(
+            "User must select a plant class if AI failed to recognize it."
+        )
+
+    # 3. Get stashed image from AI service
+    stashed_file = get_and_delete_stashed_image(payload.temp_file_id)
+    if not stashed_file:
+        raise BusinessLogicError("File expired or invalid temp_file_id")
+
+    # 4. Upload file to Yandex Disk and get the link
+    filename = f"{uuid.uuid4()}_{stashed_file['filename']}"
+    link = upload_file_to_yandex_disk(
+        file_bytes=stashed_file["bytes"],
+        filename=filename,
+        content_type=stashed_file["content_type"],
+    )
+
+    # 5. Save post to the database
+    post = Post(
+        link=link,
+        post_description=payload.description,
+        ai_plant_id=payload.ai_plant_id,
+        ai_confidence=payload.ai_confidence,
+        user_plant_id=payload.user_plant_id,
+    )
+    db.add(post)
+
+    try:
+        db.flush()
+        # Link user with post
+        db.execute(
+            post_users.insert().values(
+                user_id=str(payload.user_id), post_id=post.post_id
+            )
+        )
+        db.commit()
+        db.refresh(post)
+        return post
+    except IntegrityError:
+        db.rollback()
+        raise InvalidReferenceError(
+            "Failed to link post. Integrity constraint violated."
+        )
+
+
+def create_post(
+    db: Session,
+    user_id: str,
+    link: str,
+    description: str,
+    ai_plant_id: int,
+    ai_confidence: float,
+    user_plant_id: int,
+) -> Post:
     user = db.query(User).filter(User.user_id == user_id).first()
     if not user:
         raise NotFoundError("User")
 
-    post = Post(link=link, post_description=description)
+    # Validate that at least one of the plant IDs is provided
+    if ai_plant_id == -1 and user_plant_id == -1:
+        raise BusinessLogicError(
+            "User must select a plant class if AI failed to recognize it."
+        )
+
+    # Send the post to the database
+    post = Post(
+        link=link,
+        post_description=description,
+        ai_plant_id=ai_plant_id,
+        ai_confidence=ai_confidence,
+        user_plant_id=user_plant_id,
+    )
     db.add(post)
 
     try:

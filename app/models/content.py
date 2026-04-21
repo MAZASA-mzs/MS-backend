@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, Text, Float, ForeignKey, Table
+from sqlalchemy import Column, Integer, String, Text, Float, ForeignKey, Table
 from sqlalchemy.dialects.postgresql import UUID
 from app.database import Base
 
@@ -31,6 +31,10 @@ class Post(Base):
     post_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     link = Column(String, nullable=False)
     post_description = Column(Text, nullable=True)
+
+    ai_plant_id = Column(Integer, nullable=True)
+    ai_confidence = Column(Float, nullable=True)
+    user_plant_id = Column(Integer, nullable=False)
 
 
 class Geolocation(Base):

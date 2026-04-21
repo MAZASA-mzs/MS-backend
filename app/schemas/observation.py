@@ -1,5 +1,27 @@
 from pydantic import BaseModel
 from uuid import UUID
+from typing import Optional
+
+
+class AIClassificationResponse(BaseModel):
+    plant_class: int
+    confidence: float
+    name: Optional[str] = None
+    description: Optional[str] = None
+    danger: Optional[str] = None
+    color: Optional[str] = None
+    reference_image_url: Optional[str] = None
+    message: Optional[str] = None
+    temp_file_id: Optional[str] = None
+
+
+class PostCreate(BaseModel):
+    user_id: UUID
+    description: Optional[str] = ""
+    ai_plant_id: int
+    ai_confidence: float = 0.0
+    user_plant_id: int
+    temp_file_id: str
 
 
 class PostCreateResponse(BaseModel):
