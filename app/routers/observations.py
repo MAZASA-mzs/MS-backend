@@ -41,13 +41,13 @@ def save_geolocation(geo: GeolocationCreate, db: Session = Depends(get_db)):
     return {"geo_id": geo_obj.geo_id}
 
 
-@router.post("/link_photo_geo")
+@router.post("/link-photo-geo")
 def link_photo_geo_endpoint(payload: LinkPhotoGeo, db: Session = Depends(get_db)):
     link_photo_geo(db, str(payload.user_id), str(payload.post_id), str(payload.geo_id))
     return {"message": "Linked successfully"}
 
 
-@router.get("/user_stats")
+@router.get("/user-stats")
 def user_stats(user_id: uuid.UUID, db: Session = Depends(get_db)):
     user_stats = get_user_stats(db, str(user_id))
     return {"post_count": user_stats.post_count, "geo_count": user_stats.geo_count}

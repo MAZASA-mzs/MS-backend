@@ -95,7 +95,7 @@ def test_link_photo_geo(mock_put, mock_get, client, db, monkeypatch):
 
     # 3. Связываем
     link_resp = client.post(
-        "/api/link_photo_geo",
+        "/api/link-photo-geo",
         json={"user_id": user_id, "post_id": post_id, "geo_id": geo_id},
         headers=HEADERS,
     )
