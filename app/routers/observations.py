@@ -1,5 +1,8 @@
+import os
 import uuid
+import httpx
 from fastapi import APIRouter, Depends, UploadFile, File
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.services.ai_service import classify_and_stash_image, get_plants_dictionary
@@ -19,6 +22,31 @@ from app.schemas.observation import (
 )
 
 router = APIRouter()
+
+
+AI_SERVICE_URL = os.getenv("AI_SERVICE_URL", "http://localhost:8000")
+
+
+@router.get("/plants/{plant_id}/image")
+async def get_reference_image(plant_id: int):
+    """
+    Проксирует скачивание эталонной картинки из AI-бэкенда.
+    Бот вызывает GET /api/plants/0/image и получает готовую картинку.
+    """
+
+    async def stream_image():
+        async with httpx.AsyncClient() as client:
+            # Стучимся в AI микросервис за картинкой
+            async with client.stream(
+                "GET", f"{AI_SERVICE_URL}/static/{plant_id}.jpg"
+            ) as response:
+                if response.status_code != 200:
+                    yield b""  # Или можно обработать ошибку (отдать заглушку)
+                    return
+                async for chunk in response.aiter_bytes():
+                    yield chunk
+
+    return StreamingResponse(stream_image(), media_type="image/jpeg")
 
 
 @router.get("/plants/dictionary")
