@@ -1,1 +1,1 @@
-CREATE DATABASE IF NOT EXISTS test_observations;
+CREATE DATABASE test_observations;
